@@ -92,7 +92,7 @@ export function YouTubeVideos({ location }) {
               <img src={v.thumbnail} alt={v.title} className="w-full aspect-video object-cover" />
               <div className="p-2">
                 <p className="text-xs font-medium line-clamp-2" style={{ color: '#c5d3f0' }}>{v.title}</p>
-                <p className="text-xs mt-0.5" style={{ color: '#7a8ba8' }}>{v.channel}</p>
+                <p className="text-xs mt-0.5" style={{ color: '#7aa895ff' }}>{v.channel}</p>
               </div>
             </a>
           ))}
