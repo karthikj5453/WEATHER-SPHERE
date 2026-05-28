@@ -1,172 +1,126 @@
-# 🌤 WeatherSphere — Full Stack Weather App
+# WeatherSphere
 
-**PM Accelerator Technical Assessment — Full Stack Engineer**  
-Built by [Your Name]
+WeatherSphere is a full-stack weather dashboard and destination explorer built with a **React (Vite)** frontend and an **Express / Node.js** backend. It integrates the OpenWeatherMap API for live weather reports, standard geolocation searches, and coordinate-based reverse lookup, alongside interactive Google Maps embeds and YouTube travel logs.
+
+This repository satisfies all requirements for both the **Frontend (Assessment #1)** and **Backend (Assessment #2)** sections of the PM Accelerator Technical Assessment.
 
 ---
 
-## Overview
+## Key Features
 
-WeatherSphere is a full-stack weather application combining a **React + Vite** frontend with a **Node.js + Express + SQLite** backend. It delivers real-time weather data, a 5-day forecast, full CRUD query history, and multi-format data export.
+### Frontend
+* **Flexible Location Search:** Resolves queries by city name, ZIP code, landmark, or raw GPS coordinates.
+* **One-Click Geolocation:** Uses the HTML5 Geolocation API to fetch live weather for the user's current location.
+* **Detailed Current Conditions:** Shows temperature, feels-like temperature, humidity, wind direction/speed, visibility, atmospheric pressure, cloud cover, and sunrise/sunset times.
+* **5-Day Forecast:** Displays a responsive card layout detailing expected high/low temperatures, descriptions, and humidity.
+* **Responsive Layout:** A responsive glassmorphic UI using Tailwind CSS designed to scale cleanly across mobile, tablet, and desktop screens.
+* **User-Friendly Error Handling:** Intercepts invalid location entries or connection timeouts and prints helpful recovery suggestions.
+
+### Backend & Database
+* **CRUD History Log:** A JSON file-based database store (simulating SQLite operations) that persists past searches with custom date ranges.
+* **Data Validations:** 
+  * Rejects query requests where the start date is after the end date.
+  * Restricts date range queries to a maximum of 60 days to prevent server overload.
+  * Verifies locations exist through geocoding API lookups before writing to the database.
+* **Destination Explorer (Optional API Integrations):**
+  * Spawns an interactive Google Maps embed centered at the exact location.
+  * Fetches regional travel guides and weather-related videos via the YouTube Data API v3.
+* **Multi-Format Export Service:** Supports single-click query history downloads in **JSON, CSV, XML, Markdown, or PDF** formats.
+
+### Custom Enhancements
+* **Coordinates Reverse Lookup:** A custom parser at the top of the geocoding service detects coordinate inputs (e.g. `48.8566, 2.3522`), reverse-lookup coordinates using the OpenWeatherMap API, and returns the formal city name (e.g., "Paris, France").
+* **Silent Validation Fallbacks:** If the requested date range extends past the active 5-day forecast limit of the free API, the service clips the results and prints explicit placeholder warnings to ensure the application does not crash.
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React 18, Vite, Tailwind CSS |
-| Backend | Node.js, Express, SQLite (better-sqlite3) |
-| Weather API | OpenWeatherMap (free tier) |
-| Optional APIs | YouTube Data API v3, Google Maps Embed |
+* **Frontend:** React 18, Vite, Tailwind CSS, Axios
+* **Backend:** Node.js, Express, Axios, CORS, dotenv
+* **Database:** In-memory / file-based JSON store (SQLite interface simulation)
+* **Libraries used for Export:** `json2csv` (CSV), `xml2js` (XML), `pdfkit` (PDF)
 
 ---
 
-## Features
-
-### Assessment #1 — Frontend
-- 🔍 Search by city, zip code, GPS coordinates, or landmarks
-- 📍 Geolocation support (browser-based)
-- 🌡️ Current weather with detailed stats (temperature, humidity, wind, visibility, pressure, UV)
-- 📅 5-day forecast with daily min/max, conditions, humidity
-- 🎨 Responsive design (mobile, tablet, desktop)
-- ⚠️ Graceful error handling with user-friendly messages
-
-### Assessment #2 — Backend
-- 🗄️ Full CRUD operations on weather query history (SQLite)
-- ✅ Input validation: location existence (geocoding), date range validation (max 60 days, chronological order)
-- 📤 Data export: **JSON, CSV, XML, Markdown, PDF**
-- 🎬 YouTube API integration (travel/location videos)
-- 🗺️ Google Maps Embed API integration
-- 🌐 RESTful API design
-
----
-
-## Setup & Running
+## Quick Start
 
 ### Prerequisites
-- Node.js 18+
-- An [OpenWeatherMap API key](https://openweathermap.org/api) (free)
+* Node.js 18+
+* An [OpenWeatherMap API Key](https://openweathermap.org/api) (Free Tier)
 
-### 1. Backend
+### 1. Configure and Run the Backend
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Copy the environment variables template:
+   ```bash
+   cp .env.example .env
+   ```
+3. Edit `.env` and add your credentials:
+   ```env
+   OPENWEATHER_API_KEY=your_openweathermap_api_key_here
+   YOUTUBE_API_KEY=your_youtube_key_here  # Optional
+   GOOGLE_MAPS_API_KEY=your_maps_key_here  # Optional
+   PORT=5000
+   ```
+4. Install dependencies and start the server:
+   ```bash
+   npm install
+   ```
+   *To run in production mode:*
+   ```bash
+   npm start
+   ```
+   *To run in development mode with automatic restarts:*
+   ```bash
+   npm run dev
+   ```
 
-```bash
-cd backend
-cp .env.example .env
-# Edit .env and add your OPENWEATHER_API_KEY
-npm install
-npm start
-# Runs on http://localhost:5000
-```
+The backend server runs at `http://localhost:5000`.
 
-### 2. Frontend
+### 2. Configure and Run the Frontend
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies and start the Vite dev server:
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-```bash
-cd frontend
-npm install
-npm run dev
-# Runs on http://localhost:3000
-```
-
-Then open **http://localhost:3000** in your browser.
-
----
-
-## Environment Variables (backend/.env)
-
-```env
-# Required
-OPENWEATHER_API_KEY=your_key_here
-
-# Optional
-YOUTUBE_API_KEY=your_youtube_key_here
-GOOGLE_MAPS_API_KEY=your_maps_key_here
-
-PORT=5000
-```
-
-Get free API keys:
-- **OpenWeatherMap**: https://openweathermap.org/api
-- **YouTube Data API v3**: https://console.cloud.google.com
-- **Google Maps Embed**: https://console.cloud.google.com
+The frontend app runs at `http://localhost:3000`.
 
 ---
 
 ## API Endpoints
 
 ### Weather
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/weather/current?location=Paris` | Current weather + 5-day forecast |
-| GET | `/api/weather/by-coords?lat=48.8&lon=2.3` | Weather by GPS coordinates |
+* `GET /api/weather/current?location=<query>` — Fetches current weather and 5-day forecast.
+* `GET /api/weather/by-coords?lat=<lat>&lon=<lon>` — Fetches weather data by coordinates.
 
-### CRUD
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/queries` | Create: save a weather query with optional date range |
-| GET | `/api/queries` | Read: list all saved queries |
-| GET | `/api/queries/:id` | Read: get single query by ID |
-| PUT | `/api/queries/:id` | Update: modify location or date range |
-| DELETE | `/api/queries/:id` | Delete: remove a query |
+### CRUD History
+* `POST /api/queries` — Saves a new search query (expects `location_input`, `date_from`, `date_to`).
+* `GET /api/queries` — Returns all saved query logs.
+* `GET /api/queries/:id` — Returns details of a specific query log.
+* `PUT /api/queries/:id` — Updates a saved search log.
+* `DELETE /api/queries/:id` — Deletes a specific search log.
 
-### Export
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/export/json` | Export as JSON |
-| GET | `/api/export/csv` | Export as CSV |
-| GET | `/api/export/xml` | Export as XML |
-| GET | `/api/export/markdown` | Export as Markdown |
-| GET | `/api/export/pdf` | Export as PDF |
-
-### Additional APIs
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/youtube?location=Tokyo` | YouTube videos for location |
-| GET | `/api/maps/embed-url?lat=35.6&lon=139.7` | Google Maps embed URL |
-
----
-
-## Validation Rules
-
-- **Location**: Must resolve via OpenWeatherMap Geocoding API (supports city names, ZIP codes, coordinates)
-- **Date range**: Both dates must be valid, `date_from` ≤ `date_to`, max 60-day span
-- **Fuzzy matching**: OpenWeatherMap's geocoder handles partial names and misspellings
-
----
-
-## Project Structure
-
-```
-weather-app/
-├── backend/
-│   ├── src/
-│   │   ├── server.js         # Express app + all routes
-│   │   ├── database.js       # SQLite setup
-│   │   ├── weatherService.js # OpenWeatherMap API calls
-│   │   └── exportService.js  # JSON/CSV/XML/MD/PDF export
-│   ├── .env.example
-│   └── package.json
-└── frontend/
-    ├── src/
-    │   ├── App.jsx            # Main app with tabs
-    │   ├── components/
-    │   │   ├── SearchBar.jsx
-    │   │   ├── CurrentWeather.jsx
-    │   │   ├── FiveDayForecast.jsx
-    │   │   ├── QueryHistory.jsx   # CRUD UI
-    │   │   ├── SaveQueryForm.jsx
-    │   │   ├── MediaPanels.jsx    # Map + YouTube
-    │   │   └── ErrorBanner.jsx
-    │   └── utils/
-    │       ├── api.js         # Axios API client
-    │       └── weather.js     # Weather helpers
-    └── package.json
-```
+### Export & Integrations
+* `GET /api/export/:format` — Exports data logs. Supported formats: `json`, `csv`, `xml`, `markdown`, `pdf`.
+* `GET /api/youtube?location=<query>` — Resolves travel guide videos.
+* `GET /api/maps/embed-url?lat=<lat>&lon=<lon>` — Generates embedded Google Maps URLs.
 
 ---
 
 ## About PM Accelerator
 
-PM Accelerator is the world's #1 product management career accelerator, empowering aspiring and current product managers with hands-on training, mentorship, and real-world projects to help them land top PM roles at leading tech companies.
+The Product Manager Accelerator is the world’s #1 career accelerator for product managers. It empowers aspiring and active PMs with structured curriculum, real-world case studies, executive mentorship, and collaborative cohort projects to secure high-growth PM positions at premier technology firms globally.
 
-[LinkedIn →](https://www.linkedin.com/company/product-manager-accelerator/)
+Learn more at their [LinkedIn Page](https://www.linkedin.com/company/product-manager-accelerator/).
+
+---
+
+**Author:** Karthik  
+**Role:** AI Engineer Intern Candidate

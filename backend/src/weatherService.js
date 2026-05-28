@@ -12,6 +12,41 @@ function getApiKey() {
 // Resolve a location string to lat/lon via geocoding
 async function geocodeLocation(locationInput) {
   const key = getApiKey();
+
+  // Try parsing coordinates first (e.g. "48.8566, 2.3522")
+  const coordsRegex = /^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/;
+  const match = String(locationInput).match(coordsRegex);
+  if (match) {
+    const lat = parseFloat(match[1]);
+    const lon = parseFloat(match[2]);
+    try {
+      const res = await axios.get(`${GEO_URL}/reverse`, {
+        params: { lat, lon, limit: 1, appid: key }
+      });
+      if (res.data && res.data.length > 0) {
+        const loc = res.data[0];
+        return {
+          lat,
+          lon,
+          name: loc.name,
+          country: loc.country,
+          state: loc.state || null,
+          displayName: [loc.name, loc.state, loc.country].filter(Boolean).join(', ')
+        };
+      }
+    } catch (e) {
+      // fall through
+    }
+    return {
+      lat,
+      lon,
+      name: `GPS: ${lat}, ${lon}`,
+      country: '',
+      state: null,
+      displayName: `Coordinates: ${lat.toFixed(4)}, ${lon.toFixed(4)}`
+    };
+  }
+
   // Try direct geocoding first
   try {
     const res = await axios.get(`${GEO_URL}/direct`, {

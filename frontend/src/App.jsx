@@ -213,7 +213,7 @@ export default function App() {
 
         {/* Footer */}
         <footer className="mt-12 text-center text-xs" style={{ color: '#4a5568' }}>
-          <p>Built by <span style={{ color: '#7eb3ff' }}>[Your Name]</span> · PM Accelerator Full Stack Assessment · {year}</p>
+          <p>Built by <span style={{ color: '#7eb3ff' }}>Karthik</span> · PM Accelerator Full Stack Assessment · {year}</p>
           <p className="mt-1">Powered by OpenWeatherMap API</p>
         </footer>
       </div>
